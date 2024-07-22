@@ -1,0 +1,31 @@
+
+package com.yelang.project.extend.scenicspot.mapper;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.type.JdbcType;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.yelang.project.extend.scenicspot.domain.ScenicSpot;
+import com.yelang.project.extend.scenicspot.domain.TileBox;
+public interface ScenicSpotMapper extends BaseMapper<ScenicSpot>{
+	static final String FIND_GEOJSON_SQL="<script>"
+			+ "select st_asgeojson(geom) as geomJson from biz_scenic_spot "
+			+ "where id = #{id} "
+			+ "<if test='null != name'>and name like concat('%', #{name}, '%')</if>"
+			+ "</script>";
+	@Select(FIND_GEOJSON_SQL)
+	ScenicSpot findGeoJsonById(@Param("id")Long id,@Param("name")String name);
+	
+	static final String FIND_LISTBY_PCODE = "<script>"
+			+ " select t.*,st_asgeojson(t.geom) as geomJson from biz_province p,biz_scenic_spot t where p.code = #{code} and st_contains(p.geom, t.geom) "
+			+ "</script>";
+	/**
+	 *  根据省级行政区划code查询对应的风景名胜列表
+	 * @param code 省份编码
+	 * @return 对应的风景名胜区列表
+	 */
+	@Select(FIND_LISTBY_PCODE)
+	List<ScenicSpot> findListByPcode(@Param("code")String code);
+}
