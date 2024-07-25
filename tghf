@@ -1,0 +1,21 @@
+from sklearn.model_selection import train_test_split, GridSearchCV  
+from sklearn.ensemble import RandomForestClassifier  
+from sklearn.metrics import accuracy_score, classification_report  
+  
+# 划分训练集和测试集  
+X_train, X_test, y_train, y_test = train_test_split(df_poly.drop('target', axis=1), df_poly['target'], test_size=0.2, random_state=42)  
+  
+# 选择模型并进行参数调优  
+model = RandomForestClassifier()  
+param_grid = {  
+    'n_estimators': [100, 200, 300],  
+    'max_depth': [None, 10, 20, 30],  
+    'min_samples_split': [2, 5, 10]  
+}  
+grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, scoring='accuracy')  
+grid_search.fit(X_train, y_train)  
+  
+# 评估模型  
+y_pred = grid_search.predict(X_test)  
+print("Accuracy:", accuracy_score(y_test, y_pred))  
+print("Classification Report:\n", classification_report(y_test, y_pred))
